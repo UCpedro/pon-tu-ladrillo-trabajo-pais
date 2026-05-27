@@ -62,6 +62,19 @@ export default function Hero({
 
         {/* Modelo 3D + selector arriba */}
         <div className="lg:col-span-7 order-1 lg:order-2">
+          {/* Llamado de atención arriba del selector */}
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-tp-red px-4 py-2 text-white text-sm sm:text-base font-bold uppercase tracking-[0.14em] shadow-tp-soft">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="currentColor"
+              aria-hidden
+            >
+              <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+            </svg>
+            Selecciona la zona a la que vas a donar
+          </div>
+
           {/* Selector de zona — arriba del modelo */}
           <div className="mb-3">
             <ZoneSelector
