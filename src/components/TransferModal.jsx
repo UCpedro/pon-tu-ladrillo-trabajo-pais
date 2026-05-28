@@ -328,7 +328,7 @@ export default function TransferModal({ donation, onConfirm, onCancel, buildingT
                   : !firstName.trim() || !lastName.trim() || !rut.trim()
                     ? 'Completa nombre, apellido y RUT'
                     : !receiptFile
-                      ? 'Subí el comprobante'
+                      ? 'Sube el comprobante'
                       : 'Confirmar aporte'}
               </button>
             </div>

@@ -238,7 +238,7 @@ export default function DonationForm({
                 </p>
                 {livePercent > 100 && (
                   <p className="text-xs text-slate-600 mt-1">
-                    Cubrís{' '}
+                    Cubres{' '}
                     <strong>
                       {Math.floor(numericAmount / selectedTier.price)}{' '}
                       {selectedTier.title.toLowerCase()}
