@@ -1,9 +1,10 @@
 import { formatCLP, formatNumber } from '../utils/format.js'
 
-export default function ProgressPanel({ stats }) {
+export default function ProgressPanel({ stats, buildingType = 'salon' }) {
+  const isCapilla = buildingType === 'capilla'
   const cards = [
     {
-      label: 'Salón completado',
+      label: isCapilla ? 'Capilla completada' : 'Salón completado',
       value: `${stats.percent}%`,
       sub: `${stats.donatedParts} de ${stats.totalParts} piezas`,
       accent: 'text-tp-red',
@@ -34,7 +35,7 @@ export default function ProgressPanel({ stats }) {
         <div>
           <span className="tp-eyebrow">Progreso de la campaña</span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-tp-blue-dark mt-2">
-            Vamos en {stats.percent}% del salón
+            Vamos en {stats.percent}% {isCapilla ? 'de la capilla' : 'del salón'}
           </h2>
         </div>
         <p className="text-sm text-slate-500 max-w-sm">

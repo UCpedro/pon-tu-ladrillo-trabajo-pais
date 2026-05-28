@@ -402,7 +402,7 @@ export default function App() {
         />
 
         <section className="tp-section">
-          <ProgressPanel stats={stats} />
+          <ProgressPanel stats={stats} buildingType={buildingType} />
         </section>
 
         <section id="tiers" className="tp-section">
@@ -475,6 +475,7 @@ export default function App() {
           donation={pendingDonation}
           onConfirm={handleConfirmTransfer}
           onCancel={handleCancelTransfer}
+          buildingType={buildingType}
         />
       )}
     </div>

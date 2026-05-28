@@ -22,7 +22,7 @@ ${TRANSFER_DATA.numeroCuenta}`
 
 const MAX_RECEIPT_BYTES = 3 * 1024 * 1024 // 3 MB
 
-export default function TransferModal({ donation, onConfirm, onCancel }) {
+export default function TransferModal({ donation, onConfirm, onCancel, buildingType = 'salon' }) {
   const [step, setStep] = useState(1) // 1 = datos transferencia, 2 = comprobante
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -335,7 +335,7 @@ export default function TransferModal({ donation, onConfirm, onCancel }) {
 
             <p className="text-[11px] text-slate-500 text-center mt-4">
               Tu aporte queda registrado cuando subas el comprobante. La
-              organización lo verificará y aparecerá en el modelo del salón.
+              organización lo verificará y aparecerá en el modelo {buildingType === 'capilla' ? 'de la capilla' : 'del salón'}.
             </p>
           </>
         )}

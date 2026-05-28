@@ -31,7 +31,7 @@ export default function Hero({
           </p>
 
           <p className="text-lg sm:text-xl text-slate-700 mt-5 max-w-xl leading-relaxed">
-            Cada aporte construye una parte del salón de{' '}
+            Cada aporte construye una parte {buildingType === 'capilla' ? 'de la capilla' : 'del salón'} de{' '}
             <strong className="text-tp-red">{selectedZone?.name}</strong> que
             quedará para los vecinos. Tu nombre se marca en una pieza del modelo
             y entra al libro de constructores.
@@ -49,7 +49,7 @@ export default function Hero({
           <dl className="mt-10 grid grid-cols-3 gap-x-3 gap-y-4 max-w-xl">
             <Stat label="Recaudado" value={formatCLP(stats.raised)} />
             <Stat
-              label="Avance del salón"
+              label={buildingType === 'capilla' ? 'Avance de la capilla' : 'Avance del salón'}
               value={`${stats.percent}%`}
               accent
             />

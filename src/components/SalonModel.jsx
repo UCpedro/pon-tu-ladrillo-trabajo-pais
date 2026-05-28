@@ -95,7 +95,7 @@ export default function SalonModel({
 
       {/* Mini indicador de ayuda */}
       <div className="pointer-events-none absolute bottom-3 left-3 sm:left-4 text-[11px] sm:text-xs text-tp-blue-dark/70 bg-white/70 backdrop-blur rounded-full px-3 py-1.5">
-        Arrastra para girar el salón
+        Arrastra para girar {buildingType === 'capilla' ? 'la capilla' : 'el salón'}
       </div>
     </div>
   )
