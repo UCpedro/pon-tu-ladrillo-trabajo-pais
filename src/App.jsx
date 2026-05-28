@@ -3,8 +3,10 @@ import { donationPartsByBuilding, tiers } from './data/donationParts.js'
 import { zones } from './data/zones.js'
 import {
   fetchDonations,
-  createDonation,
-} from './lib/localDonations.js'
+  insertDonation,
+  uploadReceipt,
+  subscribeNewDonations,
+} from './lib/donations.js'
 import Hero from './components/Hero.jsx'
 import ProgressPanel from './components/ProgressPanel.jsx'
 import DonationTiers from './components/DonationTiers.jsx'
@@ -50,13 +52,26 @@ export default function App() {
     [buildingType]
   )
 
-  // Cargar donaciones de la zona seleccionada
+  // Cargar donaciones de la zona seleccionada + suscribirse a nuevas en vivo
   useEffect(() => {
-    setDonors(fetchDonations(selectedZoneId))
+    let cancelled = false
+    setDonors([])
+    fetchDonations(selectedZoneId).then((data) => {
+      if (!cancelled) setDonors(data)
+    })
+    const unsubscribe = subscribeNewDonations(selectedZoneId, (newDonor) => {
+      setDonors((prev) =>
+        prev.some((d) => d.id === newDonor.id) ? prev : [newDonor, ...prev]
+      )
+    })
     try {
       window.localStorage.setItem(LAST_ZONE_KEY, selectedZoneId)
     } catch {
       // ignore
+    }
+    return () => {
+      cancelled = true
+      unsubscribe()
     }
   }, [selectedZoneId])
 
@@ -241,6 +256,7 @@ export default function App() {
   }
 
   const handleConfirmTransfer = async ({
+    receiptFile,
     firstName,
     lastName,
     rut,
@@ -248,37 +264,56 @@ export default function App() {
     const pd = pendingDonation
     if (!pd) return
     try {
+      // 1) Subir comprobante UNA sola vez (toda la donación lo comparte)
+      const receiptUrl = receiptFile ? await uploadReceipt(receiptFile) : null
+
+      // 2) Calcular reparto del monto entre piezas del tier
       const chunks = planSpillover(pd.targetPart, pd.amount)
-      const newDonors = []
-      for (const c of chunks) {
-        const saved = createDonation(selectedZoneId, {
-          partId: c.partId,
-          name: pd.name,
-          message: pd.message,
-          amount: c.amount,
-          isCompany: pd.isCompany,
-          transferFirstName: firstName,
-          transferLastName: lastName,
-          transferRut: rut,
-        })
-        newDonors.push(saved)
+      const savedAll = []
+      const baseDonor = {
+        name: pd.name,
+        message: pd.message,
+        isCompany: pd.isCompany,
+        transferFirstName: firstName,
+        transferLastName: lastName,
+        transferRut: rut,
+        receiptUrl,
       }
-      // Releer del storage para reflejar el orden actualizado
-      setDonors(fetchDonations(selectedZoneId))
+
+      // 3) Insertar una fila por chunk
+      for (const c of chunks) {
+        const saved = await insertDonation(selectedZoneId, {
+          ...baseDonor,
+          partId: c.partId,
+          amount: c.amount,
+        })
+        savedAll.push(saved)
+      }
+
+      // 4) Update estado local (Realtime también los traerá, pero evitamos dup)
+      setDonors((prev) => {
+        const news = savedAll.filter(
+          (s) => !prev.some((p) => p.id === s.id)
+        )
+        return news.length ? [...news, ...prev] : prev
+      })
+
+      // 5) Flash + scroll al modelo
       setFlashPartId(pd.targetPart.id)
       setTimeout(() => {
         const el = document.getElementById('modelo')
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 50)
       setTimeout(() => setFlashPartId(null), 5000)
-      pd.resolve(newDonors[0])
+
+      pd.resolve(savedAll[0])
       setPendingDonation(null)
       setPreferredPartId(null)
     } catch (err) {
       console.error('[App] No se pudo registrar la donación:', err)
       if (typeof window !== 'undefined') {
         window.alert(
-          'No se pudo registrar tu aporte. Intenta de nuevo.'
+          'No se pudo registrar tu aporte. Verifica tu conexión e intenta de nuevo.'
         )
       }
       throw err
