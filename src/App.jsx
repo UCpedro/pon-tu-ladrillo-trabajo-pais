@@ -17,11 +17,27 @@ import TransferModal from './components/TransferModal.jsx'
 // Meta total mostrada (ajustable, independiente del costo real de las piezas).
 const DISPLAY_GOAL = 6_000_000
 
-// Zona inicial al cargar — usamos la primera de la lista. Después el usuario
-// puede cambiar y se guarda en localStorage.
 const LAST_ZONE_KEY = 'pon-tu-ladrillo-tp:lastZone'
 
+// Lee la zona del path actual (/san-rafael, /sanrafael, etc.).
+// Acepta tanto el slug con dashes como sin dashes.
+function getZoneFromUrl() {
+  if (typeof window === 'undefined') return null
+  const raw = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase()
+  if (!raw) return null
+  const exact = zones.find((z) => z.id === raw)
+  if (exact) return exact.id
+  const stripped = raw.replace(/[-_\s]/g, '')
+  const fuzzy = zones.find(
+    (z) => z.id.replace(/[-_\s]/g, '') === stripped
+  )
+  return fuzzy ? fuzzy.id : null
+}
+
+// Zona inicial: 1) URL  2) localStorage (última)  3) primera zona
 function loadInitialZone() {
+  const fromUrl = getZoneFromUrl()
+  if (fromUrl) return fromUrl
   if (typeof window === 'undefined') return zones[0].id
   try {
     const saved = window.localStorage.getItem(LAST_ZONE_KEY)
@@ -75,7 +91,7 @@ export default function App() {
     }
   }, [selectedZoneId])
 
-  // Al cambiar zona, resetear UI relevante
+  // Al cambiar zona, resetear UI relevante + actualizar URL
   const handleZoneChange = (newZoneId) => {
     if (newZoneId === selectedZoneId) return
     setSelectedZoneId(newZoneId)
@@ -83,7 +99,28 @@ export default function App() {
     setPreferredPartId(null)
     setFlashPartId(null)
     setPendingDonation(null)
+    if (typeof window !== 'undefined') {
+      try {
+        window.history.pushState(
+          { zoneId: newZoneId },
+          '',
+          `/${newZoneId}`
+        )
+      } catch {
+        // ignore
+      }
+    }
   }
+
+  // Sincronizar zona cuando el usuario usa back/forward del navegador
+  useEffect(() => {
+    const onPop = () => {
+      const id = getZoneFromUrl()
+      if (id && id !== selectedZoneId) setSelectedZoneId(id)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [selectedZoneId])
 
   const isPreviewZone = !!selectedZone?.isPreviewComplete
 
