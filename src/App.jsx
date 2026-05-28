@@ -488,7 +488,7 @@ function Header({ onDonateClick }) {
         <img
           src="/logotp.png"
           alt="Trabajo País 2026"
-          className="h-52 sm:h-72 w-auto"
+          className="h-28 sm:h-36 w-auto"
         />
         <span className="hidden sm:block h-20 w-px bg-stone-300" />
         <span className="hidden sm:inline-flex flex-col leading-tight">
