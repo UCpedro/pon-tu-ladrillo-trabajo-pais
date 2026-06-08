@@ -34,19 +34,19 @@ function getZoneFromUrl() {
   return fuzzy ? fuzzy.id : null
 }
 
-// Zona inicial: 1) URL  2) localStorage (última)  3) san-rafael por default
-// Si la URL no matchea una zona válida, caemos en san-rafael (no en preview-salon).
+// Zona inicial: 1) URL  2) localStorage (última)  3) zona-comun por default
+// Si la URL no matchea una zona válida, caemos en zona-comun (no en preview-salon).
 function loadInitialZone() {
   const fromUrl = getZoneFromUrl()
   if (fromUrl) return fromUrl
-  if (typeof window === 'undefined') return 'san-rafael'
+  if (typeof window === 'undefined') return 'zona-comun'
   try {
     const saved = window.localStorage.getItem(LAST_ZONE_KEY)
     if (saved && zones.some((z) => z.id === saved)) return saved
   } catch {
     // ignore
   }
-  return 'san-rafael'
+  return 'zona-comun'
 }
 
 export default function App() {

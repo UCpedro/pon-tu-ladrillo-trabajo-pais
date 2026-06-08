@@ -1,6 +1,6 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/san-rafael", "permanent": false }
+    { "source": "/", "destination": "/zona-comun", "permanent": false }
   ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
