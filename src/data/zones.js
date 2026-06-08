@@ -19,6 +19,8 @@ export const zones = [
     building: 'capilla',
     isPreviewComplete: true,
   },
+  // Zona genérica para donar cuando no se sabe a qué zona específica
+  { id: 'zona-comun', name: 'Zona Común', building: 'salon' },
   { id: 'la-gruta', name: 'La Gruta', building: 'capilla' },
   { id: 'pantanillo', name: 'Pantanillo', building: 'salon' },
   { id: 'allipen', name: 'Allipén', building: 'salon' },
