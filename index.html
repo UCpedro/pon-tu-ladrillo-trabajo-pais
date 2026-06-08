@@ -20,6 +20,53 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Schema.org JSON-LD · ayuda a Google a mostrar rich snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "NGO",
+          "@id": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/#org",
+          "name": "Trabajo País UC",
+          "alternateName": "Trabajo País",
+          "url": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/",
+          "logo": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/logotp.png",
+          "description": "Misión universitaria de la Pontificia Universidad Católica de Chile que lleva 20 años acompañando a comunidades a lo largo de Chile.",
+          "areaServed": {
+            "@type": "Country",
+            "name": "Chile"
+          },
+          "parentOrganization": {
+            "@type": "CollegeOrUniversity",
+            "name": "Pontificia Universidad Católica de Chile",
+            "url": "https://www.uc.cl/"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/#website",
+          "url": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/",
+          "name": "Pon tu ladrillo · Trabajo País 2026",
+          "description": "Construye junto a la comunidad. 26 zonas a lo largo de Chile.",
+          "inLanguage": "es-CL",
+          "publisher": { "@id": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/#org" }
+        },
+        {
+          "@type": "DonateAction",
+          "name": "Pon tu ladrillo · Aporta a Trabajo País 2026",
+          "description": "Cada aporte construye una parte del salón comunitario o capilla de una de las 26 zonas de Trabajo País 2026. Tu nombre queda registrado en el Libro de Constructores.",
+          "url": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/san-rafael",
+          "recipient": { "@id": "https://pon-tu-ladrillo-trabajo-pais.vercel.app/#org" },
+          "agent": {
+            "@type": "Person",
+            "name": "Donante"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
