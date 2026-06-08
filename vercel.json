@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/", "destination": "/san-rafael", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]
