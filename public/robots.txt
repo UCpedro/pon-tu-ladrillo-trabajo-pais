@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pon-tu-ladrillo-trabajo-pais.vercel.app/sitemap.xml
+Sitemap: https://pon-tu-ladrillo-trabajo-pais.vercel.app/sitemap-v2.xml
