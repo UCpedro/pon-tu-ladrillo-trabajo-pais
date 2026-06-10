@@ -15,6 +15,8 @@ function rowToDonor(row) {
     isCompany: !!row.is_company,
     logoDataUrl: row.logo_url || null,
     receiptUrl: row.receipt_url || null,
+    paymentMethod: row.payment_method || 'transferencia',
+    paykuOrderId: row.payku_order_id || null,
   }
 }
 
@@ -109,6 +111,8 @@ export async function insertDonation(zoneId, donation) {
     transfer_first_name: donation.transferFirstName?.trim() || null,
     transfer_last_name: donation.transferLastName?.trim() || null,
     transfer_rut: donation.transferRut?.trim() || null,
+    payment_method: donation.paymentMethod || 'transferencia',
+    payku_order_id: donation.paykuOrderId || null,
   }
   const { data, error } = await supabase
     .from('donations')

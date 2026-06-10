@@ -81,8 +81,7 @@ export default function DonationForm({
   // Para la barra visual capeada a 100%
   const barPercent = Math.min(100, livePercent)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (paymentMethod) => {
     if (submitting) return
     if (!selectedTier || !nextPart) return
     if (numericAmount <= 0) return
@@ -94,28 +93,40 @@ export default function DonationForm({
         name,
         message,
         amount: numericAmount,
+        paymentMethod, // 'online' | 'transferencia'
       })
 
-      setSuccess({
-        name: name || 'Anónimo',
-        tierTitle: selectedTier.title,
-        partName: nextPart.name,
-        percentOfPart: Math.min(
-          100,
-          Math.round((numericAmount / nextPart.price) * 100)
-        ),
-      })
-      setName('')
-      setMessage('')
-      setAmount('')
-      setTimeout(() => setSuccess(null), 6000)
+      // Solo el flujo de transferencia muestra el success acá en el form;
+      // el de Payku redirige fuera del sitio y la confirmación vuelve después.
+      if (paymentMethod === 'transferencia') {
+        setSuccess({
+          name: name || 'Anónimo',
+          tierTitle: selectedTier.title,
+          partName: nextPart.name,
+          percentOfPart: Math.min(
+            100,
+            Math.round((numericAmount / nextPart.price) * 100)
+          ),
+        })
+        setName('')
+        setMessage('')
+        setAmount('')
+        setTimeout(() => setSuccess(null), 6000)
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
+  const onFormSubmit = (e) => {
+    e.preventDefault()
+    // El Enter en un input dispara este onSubmit del form. Por default
+    // routeamos a transferencia (que es el flujo actual / probado).
+    handleSubmit('transferencia')
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="tp-card p-6 sm:p-8 space-y-6">
+    <form onSubmit={onFormSubmit} className="tp-card p-6 sm:p-8 space-y-6">
       {success && (
         <div className="tp-pop rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 p-4">
           <p className="font-semibold">¡Gracias, {success.name}! 🎉</p>
@@ -323,19 +334,56 @@ export default function DonationForm({
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={submitting || !selectedTier || !nextPart || numericAmount <= 0}
-        className="tp-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-400"
-      >
-        {submitting
-          ? 'Registrando aporte…'
-          : !selectedTier
-            ? 'Elige qué quieres aportar'
-            : !nextPart
-              ? 'Todas las piezas de este tipo ya están completas'
-              : `Registrar aporte de ${formatCLP(numericAmount || 0)} (${livePercent}%)`}
-      </button>
+      {/* Dos opciones de pago: online (Payku) o transferencia tradicional */}
+      <div className="space-y-3">
+        {(!selectedTier || !nextPart || numericAmount <= 0) ? (
+          <button
+            type="button"
+            disabled
+            className="tp-btn-primary w-full opacity-50 cursor-not-allowed bg-slate-400"
+          >
+            {submitting
+              ? 'Registrando aporte…'
+              : !selectedTier
+                ? 'Elige qué quieres aportar'
+                : !nextPart
+                  ? 'Todas las piezas de este tipo ya están completas'
+                  : 'Ingresa un monto para continuar'}
+          </button>
+        ) : (
+          <>
+            {/* Botón 1: Pago online (Payku) */}
+            <button
+              type="button"
+              onClick={() => handleSubmit('online')}
+              disabled={submitting}
+              className="tp-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting
+                ? 'Procesando…'
+                : `💳 Pagar online ${formatCLP(numericAmount || 0)}`}
+            </button>
+
+            <div className="flex items-center gap-3 text-xs text-slate-500">
+              <span className="flex-1 h-px bg-stone-300" />
+              <span className="font-semibold">o</span>
+              <span className="flex-1 h-px bg-stone-300" />
+            </div>
+
+            {/* Botón 2: Aporte por transferencia (flujo actual con comprobante) */}
+            <button
+              type="button"
+              onClick={() => handleSubmit('transferencia')}
+              disabled={submitting}
+              className="tp-btn-secondary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting
+                ? 'Procesando…'
+                : `🏦 Aporte por transferencia ${formatCLP(numericAmount || 0)}`}
+            </button>
+          </>
+        )}
+      </div>
 
     </form>
   )

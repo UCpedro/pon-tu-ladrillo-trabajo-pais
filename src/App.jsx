@@ -123,6 +123,106 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop)
   }, [selectedZoneId])
 
+  // Detectar retorno desde Payku (cuando el usuario vuelve del checkout).
+  // Lee ?payku_status=success&order=xxx en la URL, recupera la donación
+  // pendiente del localStorage, verifica el estado contra la API de Payku
+  // y, si efectivamente está pagada, la inserta en Supabase.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const status = params.get('payku_status')
+    if (!status) return
+
+    const orderId = params.get('order')
+
+    // Limpiar la URL para no re-disparar el handler en re-renders
+    const cleanUrl = window.location.pathname
+    window.history.replaceState(null, '', cleanUrl)
+
+    if (status !== 'success') {
+      // Cancelado o falló
+      if (typeof window !== 'undefined') {
+        window.alert(
+          status === 'cancel'
+            ? 'Cancelaste el pago. Si querés reintentar, vuelve a hacer click en "Pagar online".'
+            : 'El pago no se completó. Volvé a intentar.'
+        )
+      }
+      return
+    }
+
+    // Procesar el retorno exitoso
+    (async () => {
+      const { verifyPaykuTransaction, popPendingDonation } = await import(
+        './lib/payku.js'
+      )
+      const pending = popPendingDonation()
+      if (!pending || pending.orderId !== orderId) {
+        console.warn('[payku] No encontré donación pendiente para', orderId)
+        window.alert(
+          'Hubo un problema recuperando los datos de tu aporte. Si el cobro se realizó, contactanos para registrarlo manualmente.'
+        )
+        return
+      }
+
+      const verification = await verifyPaykuTransaction(orderId)
+      if (!verification.ok) {
+        console.error('[payku] Verificación falló:', verification)
+        window.alert(
+          'No pudimos confirmar el pago con Payku. Si el cobro se hizo, contactanos para registrarlo manualmente.'
+        )
+        return
+      }
+
+      // El pago está confirmado. Insertamos la donación en Supabase usando
+      // el mismo flujo que el de transferencia (spillover, realtime, etc.),
+      // pero sin pedir comprobante.
+      const d = pending.donation
+      try {
+        const chunks = planSpillover(d.targetPart, d.amount)
+        const baseDonor = {
+          name: d.name,
+          message: d.message,
+          isCompany: !!d.isCompany,
+          transferFirstName: null,
+          transferLastName: null,
+          transferRut: null,
+          receiptUrl: null, // pago Payku, no hay comprobante manual
+          paymentMethod: 'payku',
+          paykuOrderId: orderId,
+        }
+        const savedAll = []
+        for (const c of chunks) {
+          const saved = await insertDonation(d.zoneId || selectedZoneId, {
+            ...baseDonor,
+            partId: c.partId,
+            amount: c.amount,
+          })
+          savedAll.push(saved)
+        }
+        setDonors((prev) => {
+          const news = savedAll.filter((s) => !prev.some((p) => p.id === s.id))
+          return news.length ? [...news, ...prev] : prev
+        })
+        setFlashPartId(d.targetPart.id)
+        setTimeout(() => {
+          const el = document.getElementById('modelo')
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 50)
+        setTimeout(() => setFlashPartId(null), 5000)
+        console.log('[payku] Donación registrada en Supabase:', savedAll)
+      } catch (err) {
+        console.error('[payku] No se pudo insertar en Supabase:', err)
+        window.alert(
+          'El pago se realizó pero no se pudo registrar en el sitio. Contactanos con este código: ' +
+            orderId
+        )
+      }
+    })()
+    // Solo correr al mount. El handler limpia los query params para evitar
+    // re-disparos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const isPreviewZone = !!selectedZone?.isPreviewComplete
 
   const partsWithStatus = useMemo(() => {
@@ -231,6 +331,7 @@ export default function App() {
     tierId,
     isCompany,
     logoFile,
+    paymentMethod = 'transferencia',
   }) => {
     return new Promise((resolve, reject) => {
       if (!tierId) {
@@ -250,6 +351,25 @@ export default function App() {
         reject(new Error('Monto inválido'))
         return
       }
+
+      // Flujo online: redirigimos a Payku. La donación se inserta
+      // automáticamente cuando el usuario vuelve con el query param de éxito
+      // (lo maneja el useEffect de retorno Payku, ver más abajo).
+      if (paymentMethod === 'online') {
+        startPaykuCheckout({
+          name,
+          message,
+          amount: numericAmount,
+          isCompany: !!isCompany,
+          targetPart: target,
+          zoneId: selectedZoneId,
+        })
+          .then(resolve)
+          .catch(reject)
+        return
+      }
+
+      // Flujo transferencia (default): abre el TransferModal de siempre.
       setPendingDonation({
         name,
         message,
@@ -261,6 +381,13 @@ export default function App() {
         reject,
       })
     })
+  }
+
+  // Stub: arranca el flujo de Payku. Cuando estén las credenciales en
+  // .env.local, esto invoca el SDK / API de Payku y redirige al usuario.
+  const startPaykuCheckout = async (donationData) => {
+    const { createPaykuTransaction } = await import('./lib/payku.js')
+    return createPaykuTransaction(donationData)
   }
 
   // Reparte un monto entre piezas del mismo tier hasta agotarlo.
@@ -316,6 +443,7 @@ export default function App() {
         transferLastName: lastName,
         transferRut: rut,
         receiptUrl,
+        paymentMethod: 'transferencia',
       }
 
       // 3) Insertar una fila por chunk

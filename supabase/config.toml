@@ -1,0 +1,11 @@
+# Supabase project config
+# Auto-generated · solo guarda la ref del proyecto para que el CLI sepa
+# dónde deployar las funciones.
+
+project_id = "shulelipvnmodilktfmg"
+
+[functions.payku-create]
+verify_jwt = false
+
+[functions.payku-verify]
+verify_jwt = false
