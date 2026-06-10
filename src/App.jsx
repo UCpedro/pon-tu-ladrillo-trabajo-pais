@@ -152,9 +152,11 @@ export default function App() {
 
     // Procesar el retorno exitoso
     (async () => {
-      const { verifyPaykuTransaction, popPendingDonation } = await import(
-        './lib/payku.js'
-      )
+      const {
+        verifyPaykuTransaction,
+        popPendingDonation,
+        stashPendingDonation,
+      } = await import('./lib/payku.js')
       const pending = popPendingDonation()
       if (!pending || pending.orderId !== orderId) {
         console.warn('[payku] No encontré donación pendiente para', orderId)
@@ -164,11 +166,16 @@ export default function App() {
         return
       }
 
-      const verification = await verifyPaykuTransaction(orderId)
+      const verification = await verifyPaykuTransaction({
+        orderId,
+        paykuId: pending.paykuId,
+      })
       if (!verification.ok) {
         console.error('[payku] Verificación falló:', verification)
+        // Re-guardar la pendiente por si querés reintentar más tarde
+        stashPendingDonation(orderId, pending.donation, pending.paykuId)
         window.alert(
-          'No pudimos confirmar el pago con Payku. Si el cobro se hizo, contactanos para registrarlo manualmente.'
+          `No pudimos confirmar el pago con Payku.\n\nOrder ID: ${orderId}\n\nSi el cobro se hizo, contactanos con este código para registrarlo manualmente.`
         )
         return
       }

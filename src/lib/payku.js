@@ -25,11 +25,11 @@ export function isPaykuConfigured() {
 
 // Storage helpers para guardar la donación pendiente mientras el usuario
 // está afuera del sitio en el checkout de Payku.
-export function stashPendingDonation(orderId, donation) {
+export function stashPendingDonation(orderId, donation, paykuId = null) {
   try {
     window.localStorage.setItem(
       PENDING_KEY,
-      JSON.stringify({ orderId, donation, ts: Date.now() })
+      JSON.stringify({ orderId, paykuId, donation, ts: Date.now() })
     )
   } catch (e) {
     console.warn('[payku] no se pudo guardar pending donation:', e)
@@ -106,12 +106,13 @@ export async function createPaykuTransaction(donation) {
 
   console.log('[payku] Transacción creada:', data)
 
-  // Guardamos la donación antes de redirigir
-  stashPendingDonation(orderId, donation)
+  // Guardamos la donación con el paykuId que devolvió la API. Lo
+  // necesitamos después para verificar (no podemos usar nuestro orderId).
+  stashPendingDonation(orderId, donation, data.paykuId)
 
   // Redirige al checkout de Payku
   window.location.href = data.url
-  return { orderId, checkoutUrl: data.url }
+  return { orderId, paykuId: data.paykuId, checkoutUrl: data.url }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -119,7 +120,7 @@ export async function createPaykuTransaction(donation) {
 // ────────────────────────────────────────────────────────────────────────────
 // Llama a la Edge Function payku-verify para confirmar que el pago se hizo.
 // ────────────────────────────────────────────────────────────────────────────
-export async function verifyPaykuTransaction(orderId) {
+export async function verifyPaykuTransaction({ orderId, paykuId } = {}) {
   if (!isPaykuConfigured()) {
     return { ok: false, error: 'Supabase no configurado' }
   }
@@ -132,7 +133,7 @@ export async function verifyPaykuTransaction(orderId) {
         Authorization: `Bearer ${SUPABASE_KEY}`,
         apikey: SUPABASE_KEY,
       },
-      body: JSON.stringify({ orderId }),
+      body: JSON.stringify({ orderId, paykuId }),
     })
     const data = await res.json().catch(() => ({}))
 

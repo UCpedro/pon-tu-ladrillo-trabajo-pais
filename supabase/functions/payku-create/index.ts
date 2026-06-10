@@ -129,6 +129,18 @@ serve(async (req) => {
       data?.payment_url ||
       data?.data?.url_pago
 
+    // Payku puede devolver el ID interno en varios lugares — lo necesitamos
+    // para poder verificar después la transacción.
+    const paykuId =
+      data?.id ||
+      data?.data?.id ||
+      data?.transaction_id ||
+      data?.data?.transaction_id ||
+      data?.txid ||
+      data?.data?.txid
+
+    console.log('[payku-create] Checkout URL:', checkoutUrl, '| Payku ID:', paykuId)
+
     if (!checkoutUrl) {
       return new Response(
         JSON.stringify({
@@ -144,7 +156,7 @@ serve(async (req) => {
       JSON.stringify({
         ok: true,
         url: checkoutUrl,
-        id: data?.id || data?.data?.id,
+        paykuId,
         raw: data,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

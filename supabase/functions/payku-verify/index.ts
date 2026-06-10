@@ -46,10 +46,12 @@ serve(async (req) => {
   }
 
   try {
-    const { orderId } = await req.json()
-    if (!orderId) {
+    // Acepta paykuId (id interno de Payku) y/o orderId (nuestro id)
+    const { paykuId, orderId } = await req.json()
+    const lookupId = paykuId || orderId
+    if (!lookupId) {
       return new Response(
-        JSON.stringify({ ok: false, error: 'orderId requerido' }),
+        JSON.stringify({ ok: false, error: 'paykuId u orderId requerido' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -66,8 +68,9 @@ serve(async (req) => {
       )
     }
 
-    const path = `/transaction/${encodeURIComponent(orderId)}`
+    const path = `/transaction/${encodeURIComponent(lookupId)}`
     const sign = await hmacSha256(PAYKU_SECRET_KEY, path)
+    console.log('[payku-verify] Consultando:', path, '| paykuId:', paykuId, '| orderId:', orderId)
 
     const res = await fetch(`${PAYKU_API_URL}${path}`, {
       method: 'GET',
