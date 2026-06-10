@@ -64,8 +64,12 @@ export async function createPaykuTransaction(donation) {
   const orderId = `tp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
   const baseUrl = window.location.origin
-  const returnUrl = `${baseUrl}/?payku_status=success&order=${encodeURIComponent(orderId)}`
-  const cancelUrl = `${baseUrl}/?payku_status=cancel&order=${encodeURIComponent(orderId)}`
+  // Incluimos la zona en la URL de retorno para que el usuario vuelva
+  // exactamente a la página de donde salió a pagar (no a la raíz, que
+  // redirige a /zona-comun por default).
+  const zonePath = donation.zoneId ? `/${donation.zoneId}` : ''
+  const returnUrl = `${baseUrl}${zonePath}?payku_status=success&order=${encodeURIComponent(orderId)}`
+  const cancelUrl = `${baseUrl}${zonePath}?payku_status=cancel&order=${encodeURIComponent(orderId)}`
 
   console.log('[payku] Creando transacción via Edge Function:', {
     orderId,
