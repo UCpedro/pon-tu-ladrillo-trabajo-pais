@@ -120,9 +120,8 @@ export default function DonationForm({
 
   const onFormSubmit = (e) => {
     e.preventDefault()
-    // El Enter en un input dispara este onSubmit del form. Por default
-    // routeamos a transferencia (que es el flujo actual / probado).
-    handleSubmit('transferencia')
+    // El Enter en un input dispara este onSubmit del form → va a Payku.
+    handleSubmit('online')
   }
 
   return (
@@ -334,7 +333,7 @@ export default function DonationForm({
         </div>
       )}
 
-      {/* Dos opciones de pago: online (Payku) o transferencia tradicional */}
+      {/* Único botón de pago: online (Payku) */}
       <div className="space-y-3">
         {(!selectedTier || !nextPart || numericAmount <= 0) ? (
           <button
@@ -352,7 +351,6 @@ export default function DonationForm({
           </button>
         ) : (
           <>
-            {/* Botón 1: Pago online (Payku) */}
             <button
               type="button"
               onClick={() => handleSubmit('online')}
@@ -362,24 +360,6 @@ export default function DonationForm({
               {submitting
                 ? 'Procesando…'
                 : `💳 Pagar online ${formatCLP(numericAmount || 0)}`}
-            </button>
-
-            <div className="flex items-center gap-3 text-xs text-slate-500">
-              <span className="flex-1 h-px bg-stone-300" />
-              <span className="font-semibold">o</span>
-              <span className="flex-1 h-px bg-stone-300" />
-            </div>
-
-            {/* Botón 2: Aporte por transferencia (flujo actual con comprobante) */}
-            <button
-              type="button"
-              onClick={() => handleSubmit('transferencia')}
-              disabled={submitting}
-              className="tp-btn-secondary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting
-                ? 'Procesando…'
-                : `🏦 Aporte por transferencia ${formatCLP(numericAmount || 0)}`}
             </button>
           </>
         )}
