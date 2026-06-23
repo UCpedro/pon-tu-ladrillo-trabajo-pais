@@ -668,15 +668,9 @@ function SectionHeader({ eyebrow, title, subtitle, compact }) {
 
 function Footer() {
   return (
-    <footer className="tp-section mt-24 border-t border-stone-200 pt-8 text-sm text-slate-500 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div className="flex items-center gap-3">
-        <img src="/logotp.png" alt="Trabajo País 2026" className="h-10 w-auto" />
-        <p>
-          Campaña <strong className="text-tp-blue-dark">Pon tu ladrillo</strong> ·{' '}
-          <span className="text-tp-blue-dark font-semibold">Trabajo País 2026</span>
-        </p>
-      </div>
-      <div className="flex items-center gap-2 text-xs text-slate-500">
+    <footer className="tp-section mt-24 border-t border-stone-200 pt-8 text-sm text-slate-500 flex flex-col items-center gap-6">
+      {/* Bloque "Desarrollada por" — arriba, más grande */}
+      <div className="flex items-center gap-3 text-base text-slate-600">
         <span>Desarrollada por</span>
         <a
           href="https://www.linkedin.com/in/pedro-san-miguel-7833681aa"
@@ -688,9 +682,18 @@ function Footer() {
           <img
             src="/pedrosanmiguel.png"
             alt="Pedro San Miguel"
-            className="h-7 w-auto"
+            className="h-12 sm:h-14 w-auto"
           />
         </a>
+      </div>
+
+      {/* Bloque campaña — debajo */}
+      <div className="flex items-center gap-3">
+        <img src="/logotp.png" alt="Trabajo País 2026" className="h-10 w-auto" />
+        <p>
+          Campaña <strong className="text-tp-blue-dark">Pon tu ladrillo</strong> ·{' '}
+          <span className="text-tp-blue-dark font-semibold">Trabajo País 2026</span>
+        </p>
       </div>
     </footer>
   )
