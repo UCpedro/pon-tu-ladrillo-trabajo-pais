@@ -670,7 +670,7 @@ function Footer() {
   return (
     <footer className="tp-section mt-24 border-t border-stone-200 pt-8 text-sm text-slate-500 flex flex-col items-center gap-6">
       {/* Bloque "Desarrollada por" — arriba, más grande */}
-      <div className="flex items-center gap-3 text-base text-slate-600">
+      <div className="flex items-center gap-4 text-lg text-slate-600">
         <span>Desarrollada por</span>
         <a
           href="https://www.linkedin.com/in/pedro-san-miguel-7833681aa"
@@ -682,14 +682,14 @@ function Footer() {
           <img
             src="/pedrosanmiguel.png"
             alt="Pedro San Miguel"
-            className="h-12 sm:h-14 w-auto"
+            className="h-16 sm:h-20 w-auto"
           />
         </a>
       </div>
 
-      {/* Bloque campaña — debajo */}
-      <div className="flex items-center gap-3">
-        <img src="/logotp.png" alt="Trabajo País 2026" className="h-10 w-auto" />
+      {/* Bloque campaña — debajo, también más grande pero menos que el anterior */}
+      <div className="flex items-center gap-4 text-base">
+        <img src="/logotp.png" alt="Trabajo País 2026" className="h-14 sm:h-16 w-auto" />
         <p>
           Campaña <strong className="text-tp-blue-dark">Pon tu ladrillo</strong> ·{' '}
           <span className="text-tp-blue-dark font-semibold">Trabajo País 2026</span>
