@@ -676,6 +676,14 @@ function Footer() {
           <span className="text-tp-blue-dark font-semibold">Trabajo País 2026</span>
         </p>
       </div>
+      <div className="flex items-center gap-2 text-xs text-slate-500">
+        <span>Desarrollada por</span>
+        <img
+          src="/pedrosanmiguel.png"
+          alt="Pedro San Miguel"
+          className="h-7 w-auto"
+        />
+      </div>
     </footer>
   )
 }
