@@ -673,7 +673,7 @@ function Footer() {
       <div className="flex items-center gap-4 text-lg text-slate-600">
         <span>Desarrollada por</span>
         <a
-          href="https://www.linkedin.com/in/pedro-san-miguel-7833681aa"
+          href="https://dub.sh/pedrosanmiguel"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Perfil de LinkedIn de Pedro San Miguel"
