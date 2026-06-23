@@ -678,11 +678,19 @@ function Footer() {
       </div>
       <div className="flex items-center gap-2 text-xs text-slate-500">
         <span>Desarrollada por</span>
-        <img
-          src="/pedrosanmiguel.png"
-          alt="Pedro San Miguel"
-          className="h-7 w-auto"
-        />
+        <a
+          href="https://www.linkedin.com/in/pedro-san-miguel-7833681aa"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Perfil de LinkedIn de Pedro San Miguel"
+          className="inline-flex items-center transition hover:opacity-70"
+        >
+          <img
+            src="/pedrosanmiguel.png"
+            alt="Pedro San Miguel"
+            className="h-7 w-auto"
+          />
+        </a>
       </div>
     </footer>
   )
